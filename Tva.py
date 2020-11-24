@@ -13,7 +13,7 @@ D'autre part, une mise en forme d'affichage des valeurs a été mise en place (s
 partir du module locale
 
 Éditeur : Laurent REYNAUD
-Date : 28-10-2020
+Date : 24-11-2020
 """
 
 import tkinter  # module pour les widgets
