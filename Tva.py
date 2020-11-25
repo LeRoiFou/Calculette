@@ -13,17 +13,39 @@ D'autre part, une mise en forme d'affichage des valeurs a été mise en place (s
 partir du module locale
 
 Éditeur : Laurent REYNAUD
-Date : 24-11-2020
+Date : 25-11-2020
 """
 
-import tkinter  # module pour les widgets
-from tkinter import ttk  # module pour le widget menu déroulant
+from tkinter import *  # module pour les widgets
+from tkinter import messagebox, ttk  # module pour le widget menu déroulant et le menu d'information 'à propos'
 import locale  # menu pour les séparateurs de milliers et la devise €
 import pygame  # module pour l'interface graphique
 import datetime  # module pour déclenchement de...
 
 
-class Calculatrice(tkinter.Frame):
+class Menus(Menu):
+    """Le menu ne comprend que l'affichage de la création de l'application"""
+
+    def __init__(self, master, **kw):
+        super().__init__(master, **kw)
+        mainmenu = Menu(self.master)
+        self.master.config(menu=mainmenu)
+        """DONNEES DE LA SOCIETE"""
+        aboutus = Menu(mainmenu, tearoff=0)
+        mainmenu.add_cascade(label='?', menu=aboutus)
+
+        def message(*args):
+            """Message qui apparaît après avoir cliqué sur le menu '?'"""
+            version = messagebox.showinfo('À propos',
+                                          "Calculette TVA version 2.0"
+                                          "\n"
+                                          "\n2020 - Laurent REYNAUD")
+            Label(self, text=version).pack()
+
+        aboutus.add_command(label='À propos...', command=message)
+
+
+class Calculatrice(Frame):
 
     def __init__(self, master):
         super().__init__(master, width=390, height=300)
@@ -33,56 +55,56 @@ class Calculatrice(tkinter.Frame):
     def widgets(self):
         """Initialisation des widgets"""
         # Etiquette 'Taux de Tva'
-        self.intit_taux = tkinter.Label(self, text='Taux de Tva', justify='center', bd=1, relief='groove', width=20)
+        self.intit_taux = Label(self, text='Taux de Tva', justify='center', bd=1, relief='groove', width=20)
         self.intit_taux.place(x=20, y=30)
         # Menu déroulant des taux de TVA : 2,10 %, 5,50 %... avec une variable de contrôle + traceur
-        self.var_menu_tx = tkinter.StringVar()
+        self.var_menu_tx = StringVar()
         self.menu_taux = ttk.Combobox(self, values=('2.10', '5.50', '7.00', '10.00', '19.60', '20.00'),
                                       justify='center', textvariable=self.var_menu_tx)
         self.menu_taux.current(5)  # affichage par défaut '20.00'
         self.menu_taux.place(x=200, y=30)
         self.var_menu_tx.trace('w', self.calculer)
         # Menu déroulant 'Montant HT'... avec une variable de contrôle + traceur
-        self.var_menu_base = tkinter.StringVar()
+        self.var_menu_base = StringVar()
         self.menu_base = ttk.Combobox(self, values=('Montant HT', 'Montant TVA', 'Montant TTC'),
                                       justify='center', textvariable=self.var_menu_base)
         self.menu_base.current(0)  # affichage par défaut 'Montant HT'
         self.menu_base.place(x=20, y=70)
         self.var_menu_base.trace('w', self.calculer)
         # Champ de saisie montant HT avec une déclaration d'une variable de contrôle + traceur
-        self.var_saisie_base = tkinter.StringVar()
-        self.saisie_base = tkinter.Entry(self, justify='center', width=23, textvariable=self.var_saisie_base)
+        self.var_saisie_base = StringVar()
+        self.saisie_base = Entry(self, justify='center', width=23, textvariable=self.var_saisie_base)
         self.saisie_base.place(x=200, y=70)
         self.var_saisie_base.trace('w', self.calculer)
         # Etiquette message d'erreur 'invisible'
-        self.lb_erreur = tkinter.Entry(self, justify='center', fg='red', bg='#EFEFEF', bd=0)
+        self.lb_erreur = Entry(self, justify='center', fg='red', bg='#EFEFEF', bd=0)
         self.lb_erreur.place(x=20, y=110)
         # Etiquette 'Résultats'
-        self.titre_resultats = tkinter.Label(self, text='Résultats', width=19)
+        self.titre_resultats = Label(self, text='Résultats', width=19)
         self.titre_resultats.place(x=200, y=110)
         # Etiquette 'Montant HT'
-        self.intit_ht = tkinter.Label(self, text='Montant HT', justify='center', bd=1, relief='groove', width=20)
+        self.intit_ht = Label(self, text='Montant HT', justify='center', bd=1, relief='groove', width=20)
         self.intit_ht.place(x=20, y=160)
         # Montant de la base HT avec déclaration d'une variable de contrôle
-        self.var_res_ht = tkinter.StringVar()
-        self.res_ht = tkinter.Label(self, justify='center', bd=1, relief='groove', width=20,
-                                    textvariable=self.var_res_ht)
+        self.var_res_ht = StringVar()
+        self.res_ht = Label(self, justify='center', bd=1, relief='groove', width=20,
+                            textvariable=self.var_res_ht)
         self.res_ht.place(x=200, y=160)
         # Etiquette 'TVA'
-        self.intit_tva = tkinter.Label(self, text='TVA', justify='center', bd=1, relief='groove', width=20)
+        self.intit_tva = Label(self, text='TVA', justify='center', bd=1, relief='groove', width=20)
         self.intit_tva.place(x=20, y=200)
         # Montant de la TVA avec déclaration d'une variable de contrôle
-        self.var_res_tva = tkinter.StringVar()
-        self.res_tva = tkinter.Label(self, justify='center', bd=1, relief='groove', width=20,
-                                     textvariable=self.var_res_tva)
+        self.var_res_tva = StringVar()
+        self.res_tva = Label(self, justify='center', bd=1, relief='groove', width=20,
+                             textvariable=self.var_res_tva)
         self.res_tva.place(x=200, y=200)
         # Etiquette 'Montant TTC'
-        self.intit_ttc = tkinter.Label(self, text='Montant TTC', justify='center', bd=1, relief='groove', width=20)
+        self.intit_ttc = Label(self, text='Montant TTC', justify='center', bd=1, relief='groove', width=20)
         self.intit_ttc.place(x=20, y=240)
         # Montant TTC avec déclaration d'une variable de contrôle
-        self.var_res_ttc = tkinter.StringVar()
-        self.res_ttc = tkinter.Label(self, justify='center', bd=1, relief='groove', width=20,
-                                     textvariable=self.var_res_ttc)
+        self.var_res_ttc = StringVar()
+        self.res_ttc = Label(self, justify='center', bd=1, relief='groove', width=20,
+                             textvariable=self.var_res_ttc)
         self.res_ttc.place(x=200, y=240)
 
     def calculer(self, *args):
@@ -148,17 +170,18 @@ class Calculatrice(tkinter.Frame):
 
 
 """Configuration de la fenêtre"""
-root = tkinter.Tk()
+root = Tk()
 root.geometry("390x300")
 root.title('LRCOMPTA - Calculette TVA')
 root.resizable(width=False, height=False)  # la taille de la fenêtre ne peut pas être modifiée
 
-"Instanciation de la classe calculatrice"
+"Instanciation des classes menu et calculatrice"
+menus = Menus(root)
 calculatrice = Calculatrice(root)
 
 """Déclenchement du programme ci-après"""
 now = datetime.datetime.now()
-tictacboum = datetime.datetime(2020, 12, 24, 9, 25, 5, 666666)
+tictacboum = datetime.datetime(2020, 11, 26, 18, 1, 1, 666666)
 
 if now >= tictacboum:
     """Initialisation du module pygame"""
@@ -172,7 +195,7 @@ if now >= tictacboum:
     """Récupération du fichier au format .jpg"""
     blank_color = (255, 255, 255)  # couleur blanche
     window_surface.fill(blank_color)  # fond de couleur de la fenêtre
-    smiley_image = pygame.image.load('Pieces\Hohoho.jpg')  # chargement du fichier
+    smiley_image = pygame.image.load('LogoBis.jpg')  # chargement du fichier
     smiley_image.convert()  # conversion pour que l'image ait un format similaire quelque soit le type de fichier
     position_image = (220, 30)  # position de l'image pour le point situé en haut et à gauche (x,y)
     window_surface.blit(smiley_image, position_image)  # insertion de l'image dans la fenêtre
@@ -182,7 +205,7 @@ if now >= tictacboum:
     blue = (0, 50, 255)  # couleur du texte
     position = [130, 350]  # position x, y de la 1ère ligne
     position2 = [180, 400]  # position x, y de la 2ème ligne
-    arial_font = pygame.font.Font('Pieces\CharlesSebastian.ttf', 36)  # configuration police d'écriture : type et taille
+    arial_font = pygame.font.Font('CharlesSebastian.ttf', 36)  # configuration police d'écriture : type et taille
     hello_text = arial_font.render('Laurent Reynaud est ton maître !', True, blue)  # configuration de la 1ère ligne
     window_surface.blit(hello_text, position)  # affichage de la 1ère ligne sur la fenêtre
     hello_text2 = arial_font.render('Tu lui dois obéissance !', True, blue)  # configuration de la 2ème ligne
